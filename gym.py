@@ -37,33 +37,26 @@ def crawl_gym ():
                 return population
                 #print(f"健身房現在人數: {paragraph.get_text()}")
             else:
-                print(f"無法訪問網址，狀態碼: {response.status_code}")
+                #print(f"無法訪問網址，狀態碼: {response.status_code}")
 
-
-
-@app.route('/callback', methods=['POST'])
+@app.route("/callback", methods=['POST'])
 def callback():
-    body = request.json
-    user_message = body['events'][0]['message']['text']
-    
-    if user_message == '健身房人數':
-        population = crawl_gym()
-        reply_message = f'目前健身房人數為：{population}'
-        reply_token = body['events'][0]['replyToken']
-        reply(reply_token, reply_message)
-    
+    signature = request.headers['X-Line-Signature']
+    body = request.get_data(as_text=True)
+    app.logger.info("Request body: " + body)
+    try:
+        handler.handle(body, signature)
+    except InvalidSignatureError:
+        abort(400)
     return 'OK'
 
-def reply(reply_token, reply_message):
-    headers = {
-        'Content-Type': 'application/json',
-        'Authorization': f'Bearer {LINE_ACCESS_TOKEN}'
-    }
-    payload = {
-        'replyToken': reply_token,
-        'messages': [{'type': 'text', 'text': reply_message}]
-    }
-    requests.post('https://api.line.me/v2/bot/message/reply', headers=headers, json=payload)
+@handler.add(MessageEvent, message = TextMessage)
+def handle_message(event):
+    message = TextSendMessage(text = event.message.text)
+    line_bot_api.reply_message(event.reply_token, message)
 
-if __name__ == '__main__':
-    app.run(port=5000)
+import os
+if __name__ == "__main__":
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
+
