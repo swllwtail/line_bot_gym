@@ -36,7 +36,7 @@ def crawl_gym ():
                 population = paragraph.get_text()
                 return population
                 #print(f"健身房現在人數: {paragraph.get_text()}")
-            else:
+            #else:
                 #print(f"無法訪問網址，狀態碼: {response.status_code}")
 
 @app.route("/callback", methods=['POST'])
