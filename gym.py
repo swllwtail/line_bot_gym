@@ -35,28 +35,31 @@ def crawl_gym ():
             if idx == 8:
                 population = paragraph.get_text()
                 return population
-                #print(f"健身房現在人數: {paragraph.get_text()}")
-            #else:
-                #print(f"無法訪問網址，狀態碼: {response.status_code}")
 
 @app.route("/callback", methods=['POST'])
 def callback():
-    signature = request.headers['X-Line-Signature']
-    body = request.get_data(as_text=True)
-    app.logger.info("Request body: " + body)
-    try:
-        handler.handle(body, signature)
-    except InvalidSignatureError:
-        abort(400)
+    body = request.get_json()
+    reply_token = body['events'][0]['replyToken']
+    user_message = body['events'][0]['message']['text']
+
+    if user_message.lower() == "健身房人數":
+        reply_message(reply_token, f"目前健身房人數: {crawl_gym()} 人")
+
     return 'OK'
 
-@handler.add(MessageEvent, message = TextMessage)
-def handle_message(event):
-    message = TextSendMessage(text = event.message.text)
-    line_bot_api.reply_message(event.reply_token, message)
+def reply_message(reply_token, message):
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': f'Bearer {LINE_CHANNEL_ACCESS_TOKEN}'
+    }
+    data = {
+        "replyToken": reply_token,
+        "messages": [{
+            "type": "text",
+            "text": message
+        }]
+    }
+    requests.post('https://api.line.me/v2/bot/message/reply', headers=headers, json=data)
 
-import os
 if __name__ == "__main__":
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
-
+    app.run(port=5000)
