@@ -36,12 +36,6 @@ def crawl_gym ():
                 population = paragraph.get_text()
                 return population
 
-channel_access_token = '{Channel_access_token}'
-channel_secret = '{Channel_secret}'
-line_bot_api = LineBotApi(channel_access_token)
-handler = WebhookHandler(channel_secret)
-
-app = Flask(__name__)
 
 # 監聽所有來自 /callback 的 Post Request
 @app.route("/callback", methods=['POST'])
