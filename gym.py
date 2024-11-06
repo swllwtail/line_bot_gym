@@ -8,7 +8,7 @@ import os
 
 app = Flask(__name__)
 
-msg_list = ['gym','人數']
+msg_list = ['gym','人數','健嗎']
 line_bot_api = LineBotApi(os.environ['CHANNEL_ACCESS_TOKEN'])
 handler = WebhookHandler(os.environ['CHANNEL_SECRET'])
 
