@@ -32,7 +32,7 @@ def crawl_gym ():
         # 獲取所有段落內容
         paragraphs = soup.find_all('span')
         for idx, paragraph in enumerate(paragraphs):
-            if idx == 8:
+            if idx == 6:
                 population = paragraph.get_text()
                 return population
 
